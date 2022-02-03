@@ -167,16 +167,11 @@ def pregunta_10():
     3   D                  1:2:3:5:5:7
     4   E  1:1:2:3:3:4:5:5:5:6:7:8:8:9
     """
-    a = tbl0.copy()
-    a['nam'] = ["_c0","_c1"] * 20
-
-    a = a.pivot(
-        index = "_c1",
-        columns = "nam",
-        values = "_c0"
-    )
-
-    return a
+    t = tbl0.copy()
+    t = t.groupby('_c1').agg({'_c2': lambda var: sorted(list(var))})
+    for ind, fil in t.iterrows():
+        fil['_c2'] = ":".join([str(num) for num in fil['_c2']])
+    return t
 
 
 def pregunta_11():
@@ -195,7 +190,12 @@ def pregunta_11():
     38   38      d,e
     39   39    a,d,f
     """
-    return
+    t = tbl1.copy()
+    t = t.groupby('_c0').agg({'_c4': lambda var: sorted(list(var))})
+    for ind, fil in t.iterrows():
+        fil['_c4'] = ",".join([str(num) for num in fil['_c4']])
+    t.insert(0, '_c0', range(0, 40))
+    return t
 
 
 def pregunta_12():
@@ -213,7 +213,13 @@ def pregunta_12():
     38   38                    eee:0,fff:9,iii:2
     39   39                    ggg:3,hhh:8,jjj:5
     """
-    return
+    t1 = tbl2.copy()
+    t1['_c5'] = t1['_c5a'] + ':' + t1['_c5b'].astype(str)
+    t = t1.groupby('_c0').agg({'_c5': lambda var: sorted(var)})
+    for ind, fil in t.iterrows():
+        fil['_c5'] = ",".join([str(num) for num in fil['_c5']])
+    t.insert(0, '_c0', range(0, 40))
+    return t
 
 
 def pregunta_13():
@@ -230,4 +236,9 @@ def pregunta_13():
     E    275
     Name: _c5b, dtype: int64
     """
-    return
+    t = pd.merge(
+        tbl0,
+        tbl2,
+        how = "outer"
+    )
+    return t.groupby('_c1')['_c5b'].sum()
